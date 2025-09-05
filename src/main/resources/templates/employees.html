@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments/header :: head('Employee Management')"></head>
+<body>
+	<div
+		th:replace="fragments/header :: complete-header('Employee Management')"></div>
+
+
+	<main class="container mt-4">
+		<div class="d-flex justify-content-between align-items-center mb-4">
+			<h2>Employee Management</h2>
+			<div>
+				<button id="refresh-table" class="btn btn-outline-secondary me-2">
+					<i class="bi bi-arrow-clockwise"></i> Refresh
+				</button>
+				<a th:href="@{/index}" class="btn btn-outline-primary">Home</a>
+			</div>
+		</div>
+
+		<div class="card">
+			<div class="card-header">
+				<h5 class="card-title mb-0">Employee List</h5>
+				<!-- <small class="text-muted">Click on any row to view details</small> -->
+			</div>
+			<div class="card-body">
+				<div class="table-responsive">
+					<div id="employee-table"></div>
+				</div>
+			</div>
+			<div class="card-footer text-muted">
+				<small>Showing <span id="row-count">0</span> employees
+				</small>
+			</div>
+		</div>
+
+		<!-- Loading indicator -->
+		<div id="loading" class="text-center mt-4" style="display: none;">
+			<div class="spinner-border text-primary" role="status">
+				<span class="visually-hidden">Loading...</span>
+			</div>
+			<p class="mt-2">Loading employee data...</p>
+		</div>
+	</main>
+
+	<div th:replace="fragments/footer :: footer"></div>
+
+	<script>
+    // Update row count when table data changes
+    if (typeof table !== 'undefined') {
+        table.on("dataLoaded", function(data){
+            document.getElementById('row-count').textContent = data.length;
+        });
+        
+        table.on("dataLoading", function(){
+            document.getElementById('loading').style.display = 'block';
+        });
+        
+        table.on("dataLoaded", function(){
+            document.getElementById('loading').style.display = 'none';
+        });
+    }
+    </script>
+</body>
+</html>

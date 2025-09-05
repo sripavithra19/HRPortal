@@ -1,0 +1,137 @@
+/* Basic reset and body styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+ 
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f8f9fa;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+ 
+main {
+    flex: 1;
+}
+ 
+/* Navigation styles */
+.navbar-brand {
+    font-weight: bold;
+    font-size: 1.5rem;
+}
+ 
+.navbar-nav .nav-link {
+    padding: 0.5rem 1rem;
+    margin: 0 0.25rem;
+    border-radius: 0.25rem;
+    transition: background-color 0.3s ease;
+}
+ 
+.navbar-nav .nav-link:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+ 
+/* Card styles */
+.card {
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    border: none;
+    border-radius: 10px;
+    margin-bottom: 2rem;
+}
+ 
+.card-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-radius: 10px 10px 0 0 !important;
+    padding: 1rem 1.5rem;
+}
+ 
+.card-title {
+    margin-bottom: 0;
+}
+ 
+/* Button styles */
+.btn {
+    border-radius: 0.375rem;
+    padding: 0.5rem 1rem;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+ 
+.btn-primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border: none;
+}
+ 
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+ 
+/* Table styles */
+.table-responsive {
+    border-radius: 0.375rem;
+    overflow: hidden;
+}
+ 
+/* Jumbotron/Hero section */
+.jumbotron {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-radius: 15px;
+    padding: 3rem 2rem;
+    margin: 2rem 0;
+}
+ 
+.jumbotron h1 {
+    font-size: 3rem;
+    font-weight: 300;
+}
+ 
+.jumbotron .lead {
+    font-size: 1.25rem;
+    font-weight: 300;
+}
+ 
+/* Footer styles */
+footer {
+    background-color: #f8f9fa;
+    padding: 2rem 0;
+    margin-top: auto;
+}
+ 
+/* Loading spinner */
+.spinner-border {
+    width: 3rem;
+    height: 3rem;
+}
+ 
+/* Error message */
+.alert {
+    border-radius: 0.5rem;
+    border: none;
+}
+ 
+.alert-danger {
+    background-color: #f8d7da;
+    color: #721c24;
+}
+ 
+/* Responsive design */
+@media (max-width: 768px) {
+    .jumbotron {
+        padding: 2rem 1rem;
+        text-align: center;
+    }
+    
+    .jumbotron h1 {
+        font-size: 2rem;
+    }
+    
+    .navbar-nav {
+        text-align: center;
+    }
+}

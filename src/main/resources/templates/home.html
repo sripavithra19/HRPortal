@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Login Page</title>
+<style>
+    body {
+      margin: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #1e3c72, #2a5298);
+      color: #333;
+    }
+ 
+    .card {
+      background: #ffffff;
+      padding: 50px 40px;
+      border-radius: 16px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+      text-align: center;
+      width: 350px;
+      animation: fadeIn 1s ease-in-out;
+    }
+ 
+    .card h1 {
+      margin-bottom: 10px;
+      font-size: 28px;
+      color: #1e3c72;
+    }
+ 
+    .card p {
+      margin-bottom: 30px;
+      color: #666;
+      font-size: 15px;
+    }
+ 
+    .btn {
+      display: inline-block;
+      padding: 14px 28px;
+      font-size: 16px;
+      font-weight: bold;
+      border: none;
+      border-radius: 8px;
+      background: #007dc1;
+      color: white;
+      cursor: pointer;
+      transition: transform 0.2s, background 0.3s;
+    }
+ 
+    .btn:hover {
+      background: #005a8c;
+      transform: translateY(-2px);
+    }
+ 
+    .btn:active {
+      transform: translateY(0);
+    }
+ 
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+</style>
+</head>
+<body>
+<div class="card">
+<h1>Welcome</h1>
+<p>Please login to continue</p>
+<button class="btn" onclick="login()">Login with Okta</button>
+</div>
+ 
+  <script>
+    function login() {
+      window.location.href = "/oauth2/authorization/okta";
+    }
+</script>
+</body>
+</html>

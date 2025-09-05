@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+<footer th:fragment="footer">
+    <div class="container mt-5">
+        <hr>
+        <div class="row">
+            <div class="col-md-6">
+                <p>&copy; 2025 Ciberspring HR Portal. All rights reserved.</p>
+            </div>
+            <div class="col-md-6 text-end">
+                <p>Version 1.0.0</p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Tabulator JS -->
+    <script src="https://unpkg.com/tabulator-tables@5.5.2/dist/js/tabulator.min.js"></script>
+    
+    <!-- Custom JS -->
+    <script th:src="@{/js/tabulator-config.js}"></script>
+</footer>
+</body>
+</html>

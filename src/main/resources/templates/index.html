@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head th:replace="fragments/header :: head('Home')">
+</head>
+<body>
+    <div th:replace="fragments/header :: complete-header('Home')"></div>
+    
+    <main class="container mt-5">
+        <div class="jumbotron">
+            <h1 class="display-4">Welcome to HR Portal</h1>
+            <p class="lead">Manage your employees efficiently with our comprehensive HR management system.</p>
+            <hr class="my-4">
+            <p>Access employee data, manage profiles, and streamline your HR processes.</p>
+            <a class="btn btn-primary btn-lg" th:href="@{/client/employees}" role="button">View Employees</a>
+            <!--  <a class="btn btn-primary btn-lg" th:href="@{/client/employees/{id}}" role="button">View Employees By ID</a> -->
+             <a class="btn btn-primary btn-lg" th:href="@{/client/leaves}" role="button">Leaves Management</a>
+            <!-- <a class="btn btn-outline-primary btn-lg ms-2" th:href="@{/oauth2/authorization/keycloak}" role="button">Login</a> -->
+        </div>
+
+    </main>
+    
+ <div th:replace="fragments/footer :: footer"></div> 
+</body>
+</html>
