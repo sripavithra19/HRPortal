@@ -24,22 +24,21 @@ import static org.springframework.security.config.Customizer.withDefaults;
 @EnableWebSecurity
 public class SecurityConfig {
     
-    @Bean
-    SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http
-        .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/", "/login**", "/oauth2/**", "/error", "/static/**").permitAll()
-                .anyRequest().authenticated()
-            )
-            .oauth2Login(oauth2 -> oauth2
-                .defaultSuccessUrl("/user", true)
-                .userInfoEndpoint(userInfo -> userInfo
-                    .oidcUserService(this.oidcUserService())
-                )
-            );
-        return http.build();
-    }
+	@Bean
+	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+	    http
+	        .authorizeHttpRequests(auth -> auth
+	            .anyRequest().authenticated()
+	        )
+	        .oauth2Login(oauth2 -> oauth2
+	            .defaultSuccessUrl("/index", true)  // 👈 Redirect to /index always after login
+	        )
+	        .logout(logout -> logout
+	            .logoutSuccessUrl("/")  // Optional: Redirect to home on logout
+	        );
 
+	    return http.build();
+	}
     private OAuth2UserService<OidcUserRequest, OidcUser> oidcUserService() {
         final OidcUserService delegate = new OidcUserService();
         

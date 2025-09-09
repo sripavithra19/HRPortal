@@ -17,67 +17,53 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 @RequestMapping("/client")
 public class ClientController {
 
-	private final EmployeeClientService employeeClientService;
-	private final LeavesClientService leavesClientService;
-	private final ObjectMapper objectMapper;
+    private final EmployeeClientService employeeClientService;
+    private final LeavesClientService leavesClientService;
+    private final ObjectMapper objectMapper;
 
-	public ClientController(EmployeeClientService employeeClientService,LeavesClientService leavesClientService, ObjectMapper objectMapper) {
-		this.employeeClientService = employeeClientService;
-		this.leavesClientService=leavesClientService;
-		this.objectMapper = objectMapper;
-	}
+    public ClientController(EmployeeClientService employeeClientService,
+                            LeavesClientService leavesClientService,
+                            ObjectMapper objectMapper) {
+        this.employeeClientService = employeeClientService;
+        this.leavesClientService = leavesClientService;
+        this.objectMapper = objectMapper;
+    }
 
-	@GetMapping("/employees")
-	public String getAllEmployees(OAuth2AuthenticationToken authentication, Model model) {
-		// Just return the view, data will be loaded via AJAX
-		return "employees";
-	}
-   
-	@GetMapping("/leaves")
-	public String getAllLeaves(OAuth2AuthenticationToken authentication, Model model) {
-		// Just return the view, data will be loaded via AJAX
-		return "leaves";
-	}
-	@GetMapping("/employees/json")
-	@ResponseBody
-	public String getEmployeesJson(OAuth2AuthenticationToken authentication) {
-		String response = employeeClientService.getEmployees(authentication);
-		System.out.println("API Response: " + response); 
-		return response;
-	}
-	
-	@GetMapping("/leaves/json")
-	@ResponseBody
-	public String getLeavesJson(OAuth2AuthenticationToken authentication) {
-		String response = leavesClientService.getLeaves(authentication);
-		return response;
-	}
+    @GetMapping("/employees")
+    public String getAllEmployees() {
+        return "employees";
+    }
 
-	@GetMapping("/employees/{id}")
-	public String getEmployeeById(@PathVariable String id, OAuth2AuthenticationToken authentication, Model model) {
-		System.out.println("Fetching employee with ID: " + id);
+    @GetMapping("/leaves")
+    public String getAllLeaves() {
+        return "leaves";
+    }
 
-		String employeeJson = employeeClientService.getEmployeeById(id, authentication);
-		System.out.println("Raw API response: " + employeeJson);
+    @GetMapping("/employees/json")
+    @ResponseBody
+    public String getEmployeesJson(OAuth2AuthenticationToken authentication) {
+        return employeeClientService.getEmployees(authentication);
+    }
 
-		try {
-			JsonNode employeeNode = objectMapper.readTree(employeeJson);
-			System.out.println("Parsed JSON: " + employeeNode.toString());
+    @GetMapping("/leaves/json")
+    @ResponseBody
+    public String getLeavesJson(OAuth2AuthenticationToken authentication) {
+        return leavesClientService.getLeaves(authentication);
+    }
 
-			model.addAttribute("employee", employeeNode);
-			model.addAttribute("employeeJson", employeeJson); // The JSON string
-			model.addAttribute("employeeId", id);
-
-			return "employee-detail";
-		} catch (Exception e) {
-			System.err.println("Error parsing JSON: " + e.getMessage());
-			e.printStackTrace();
-
-			// Still add the raw JSON even if parsing failed
-			model.addAttribute("employeeJson", employeeJson);
-			model.addAttribute("employeeId", id);
-			return "employee-detail";
-		}
-	}
-
+    @GetMapping("/employees/{id}")
+    public String getEmployeeById(@PathVariable String id,
+                                  OAuth2AuthenticationToken authentication,
+                                  Model model) {
+        try {
+            String employeeJson = employeeClientService.getEmployeeById(id, authentication);
+            JsonNode employeeNode = objectMapper.readTree(employeeJson);
+            model.addAttribute("employee", employeeNode);
+            model.addAttribute("employeeJson", employeeJson);
+            model.addAttribute("employeeId", id);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return "employee-detail";
+    }
 }
