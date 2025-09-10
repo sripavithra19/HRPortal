@@ -39,17 +39,4 @@ public class SecurityConfig {
 
 	    return http.build();
 	}
-    private OAuth2UserService<OidcUserRequest, OidcUser> oidcUserService() {
-        final OidcUserService delegate = new OidcUserService();
-        
-        return (userRequest) -> {
-            OidcUser user = delegate.loadUser(userRequest);
-            return new DefaultOidcUser(
-                user.getAuthorities(),
-                user.getIdToken(),
-                user.getUserInfo(),
-                "preferred_username" 
-            );
-        };
-    }
 }

@@ -6,6 +6,7 @@ import org.springframework.security.oauth2.client.*;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -25,18 +26,26 @@ public class EmployeeClientService {
     }
 
     public String getEmployees(OAuth2AuthenticationToken authentication) {
-        String accessToken = getUserAccessToken(authentication);
-        HttpHeaders headers = createHeaders(accessToken);
-       
         try {
+            String accessToken = getUserAccessToken(authentication);
+            HttpHeaders headers = createHeaders(accessToken);
+           
             ResponseEntity<String> response = new RestTemplate()
                     .exchange(apiUrl + "/employees", HttpMethod.GET, new HttpEntity<>(headers), String.class);
-        
-            // Validate JSON response
-            objectMapper.readTree(response.getBody());
+            
             return response.getBody();
+            
+        } catch (HttpClientErrorException.Forbidden e) {
+            // Handle 403 Forbidden specifically
+            return """
+            {
+                "error": "access_denied",
+                "message": "You are not allowed to access employee data. This is only for Management HR team access.",
+                "contact": "Please contact HR administrator if you need access."
+            }
+            """;
         } catch (Exception e) {
-            return "[]"; // Return empty array if invalid JSON
+            return "[]";
         }
     }
 

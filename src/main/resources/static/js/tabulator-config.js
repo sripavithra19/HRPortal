@@ -24,6 +24,15 @@ function initializeEmployeeTable() {
             pagination: "local",
             paginationSize: 10,
             ajaxLoading: true,
+            // ADDED: Handle access denied responses
+            ajaxResponse: function(url, params, response) {
+                // Check if response contains access denied error
+                if (response && (response.error === "access_denied" || response.error === "insufficient_scope")) {
+                    showAccessDeniedMessage(response.message || response.error_description);
+                    return []; // Return empty array to prevent table errors
+                }
+                return response;
+            },
             columns: [
                 {
                     title: "ID", 
@@ -53,6 +62,14 @@ function initializeEmployeeTable() {
         employeeTable.on("dataLoaded", function(data){
             document.getElementById('row-count').textContent = data.length;
             document.getElementById('loading').style.display = 'none';
+            
+            // ADDED: Check if data is empty due to access denial
+            if (data.length === 0) {
+                var currentContent = document.getElementById('employee-table').innerHTML;
+                if (!currentContent.includes('alert-warning')) {
+                    showAccessDeniedMessage("No data available. You may not have access to employee data.");
+                }
+            }
         });
         
         employeeTable.on("dataLoading", function(){
@@ -61,6 +78,18 @@ function initializeEmployeeTable() {
         
         employeeTable.on("tableBuilt", function(){
             console.log('Employee table built successfully');
+        });
+        
+        // ADDED: Handle AJAX errors specifically
+        employeeTable.on("ajaxError", function(error, response){
+            console.error('AJAX error loading employees:', error, response);
+            
+            // Check if it's a 403 Forbidden error
+            if (response && response.status === 403) {
+                showAccessDeniedMessage("Access denied. You do not have permission to view employee data.");
+            } else {
+                showError('employee-table', 'Error loading employee data. Please try again.');
+            }
         });
 
     } catch (error) {
@@ -215,6 +244,14 @@ function initializeLeavesTable() {
             pagination: "local",
             paginationSize: 10,
             ajaxLoading: true,
+            // ADDED: Handle access denied for leaves as well
+            ajaxResponse: function(url, params, response) {
+                if (response && (response.error === "access_denied" || response.error === "insufficient_scope")) {
+                    showAccessDeniedMessage(response.message || response.error_description, 'leaves-table');
+                    return [];
+                }
+                return response;
+            },
             columns: [
                 {
                     title: "Holiday Date", 
@@ -272,7 +309,13 @@ function initializeLeavesTable() {
         // Add error handling
         leavesTable.on("ajaxError", function(error, response){
             console.error('AJAX error loading leaves:', error, response);
-            showError('leaves-table', 'Error loading leaves data. Please try again.');
+            
+            // Check if it's a 403 Forbidden error
+            if (response && response.status === 403) {
+                showAccessDeniedMessage("Access denied. You do not have permission to view leaves data.", 'leaves-table');
+            } else {
+                showError('leaves-table', 'Error loading leaves data. Please try again.');
+            }
         });
 
     } catch (error) {
@@ -281,6 +324,25 @@ function initializeLeavesTable() {
     }
 }
 
+// NEW FUNCTION: Show access denied message
+function showAccessDeniedMessage(message, elementId = 'employee-table') {
+    var errorHtml = `
+        <div class="alert alert-warning alert-dismissible fade show" role="alert">
+            <h4 class="alert-heading">Access Denied</h4>
+            <p>${message || 'You do not have permission to access this data.'}</p>
+            <hr>
+            <p class="mb-0">This section is restricted to Management HR team members only.</p>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    `;
+    
+    var element = document.getElementById(elementId);
+    if (element) {
+        element.innerHTML = errorHtml;
+    }
+}
+
+// EXISTING FUNCTION: Show error message
 function showError(elementId, message) {
     var element = document.getElementById(elementId);
     if (element) {
@@ -303,3 +365,4 @@ function formatDate(dateString) {
 window.initializeEmployeeTable = initializeEmployeeTable;
 window.initializeEmployeeDetailTable = initializeEmployeeDetailTable;
 window.initializeLeavesTable = initializeLeavesTable;
+window.showAccessDeniedMessage = showAccessDeniedMessage;
