@@ -1,18 +1,82 @@
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('Tabulator config loaded');
-    
-    if (document.getElementById('employee-table')) {
-        initializeEmployeeTable();
-    }
-    
-    if (document.getElementById('employee-detail-table')) {
-        initializeEmployeeDetailTable();
-    }
-    
-    if (document.getElementById('leaves-table')) {
-        initializeLeavesTable();
-    }
+	console.log('Tabulator config loaded');
+
+	if (document.getElementById('employee-table')) {
+		initializeEmployeeTable();
+	}
+
+	if (document.getElementById('employee-detail-table')) {
+		initializeEmployeeDetailTable();
+	}
+
+	if (document.getElementById('leaves-table')) {
+		initializeLeavesTable();
+	}
+
+	// NEW: Check if leaves availed section exists
+	if (document.getElementById('leavesAvailedSection')) {
+		console.log('Leaves Availed section detected');
+	}
 });
+function openLeavesAvailed() {
+    // Hide other sections first...
+    // document.getElementById("employeesSection").style.display = "none";
+    // document.getElementById("leavesManagementSection").style.display = "none";
+
+    // Show the leaves availed section
+    document.getElementById("leavesAvailedSection").style.display = "block";
+
+    // Optional: Clear previous table and input
+    document.getElementById("employeeIdInput").value = "";
+    document.getElementById("leaveDetailsTable").innerHTML = "";
+}
+
+function fetchLeaveDetails() {
+    const employeeId = document.getElementById("employeeIdInput").value;
+    if (!employeeId) {
+        alert("Please enter an Employee ID.");
+        return;
+    }
+
+    // Make a GET request to the new endpoint
+    fetch(`http://localhost:8082/api/leaves/leaveDetails/${employeeId}`) // Use your correct port
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Employee not found or no data available.');
+            }
+            return response.json();
+        })
+        .then(data => {
+            // Create the Tabulator table with the single row of data
+            new Tabulator("#leaveDetailsTable", {
+                data: [data], // Put the single object into an array
+                layout: "fitColumns",
+                columns: [
+                    { title: "Employee ID", field: "employeeId" },
+                    { title: "Total General Leaves", field: "totalGeneralLeaves" },
+                    { title: "General Leaves Availed", field: "generalLeavesAvailed" },
+                    { title: "General Leaves Balance", field: "totalGeneralLeaves", 
+                     formatter: "function(cell, formatterParams, onRendered){ return cell.getRow().getData().totalGeneralLeaves - cell.getRow().getData().generalLeavesAvailed; }" 
+                    },
+                    { title: "Total Privilege Leaves", field: "totalPrivilegeLeaves" },
+                    { title: "Privilege Leaves Availed", field: "privilegeLeavesAvailed" },
+                    { title: "Privilege Leaves Balance", field: "totalPrivilegeLeaves", 
+                     formatter: "function(cell, formatterParams, onRendered){ return cell.getRow().getData().totalPrivilegeLeaves - cell.getRow().getData().privilegeLeavesAvailed; }" 
+                    },
+                    { title: "Total Restricted Holidays", field: "totalRestrictedHolidays" },
+                    { title: "Restricted Holidays Availed", field: "restrictedHolidaysAvailed" },
+                    { title: "Restricted Holidays Balance", field: "totalRestrictedHolidays", 
+                     formatter: "function(cell, formatterParams, onRendered){ return cell.getRow().getData().totalRestrictedHolidays - cell.getRow().getData().restrictedHolidaysAvailed; }" 
+                    },
+                ]
+            });
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert(error.message);
+            document.getElementById("leaveDetailsTable").innerHTML = "<p>Error: " + error.message + "</p>";
+        });
+}
 
 function initializeEmployeeTable() {
     console.log('Initializing employee table');

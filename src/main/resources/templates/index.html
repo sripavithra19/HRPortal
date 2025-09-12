@@ -8,8 +8,8 @@
 	<main class="container mt-5">
 		<div class="jumbotron">
 			<h3 class="mt-3">
-    Welcome, <span th:text="${user.fullName}">User</span>!
-</h3>
+				Welcome, <span th:text="${user.fullName}">User</span>!
+			</h3>
 
 
 			<p class="lead">Manage your employees efficiently with our
@@ -20,7 +20,19 @@
 
 			<a class="btn btn-primary btn-lg" th:href="@{/client/employees}"
 				role="button">View Employees</a> <a class="btn btn-primary btn-lg"
-				th:href="@{/client/leaves}" role="button">Leaves Management</a>
+				th:href="@{/client/leaves}" role="button">Leaves Management</a> <a
+				class="btn btn-primary btn-lg" th:href="@{/client/leaves-availed}"
+				role="button">Leaves Availed</a>
+		</div>
+		<div id="leavesAvailedSection" style="display: none;">
+			<h2>View Leave Details</h2>
+			<label for="employeeIdInput">Enter Employee ID:</label> <input
+				type="number" id="employeeIdInput">
+			<button onclick="fetchLeaveDetails()">Fetch Details</button>
+			<br>
+			<br>
+			<!-- Container for the Tabulator table -->
+			<div id="leaveDetailsTable"></div>
 		</div>
 	</main>
 
