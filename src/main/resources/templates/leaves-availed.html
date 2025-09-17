@@ -31,7 +31,7 @@
     <script th:src="@{/js/tabulator.js}"></script>
     
     <script>
-    // Optional: You can also put this function directly in the HTML
+    
     function fetchLeaveDetails() {
         const employeeId = document.getElementById("employeeIdInput").value;
         if (!employeeId) {
@@ -41,7 +41,7 @@
 
         console.log('Fetching leave details for employee ID:', employeeId);
 
-        // Show loading state
+        
         document.getElementById("leaveDetailsTable").innerHTML = '<div class="text-center"><div class="spinner-border" role="status"><span class="visually-hidden">Loading...</span></div><p>Loading leave details...</p></div>';
 
         // Call HRPortal backend
