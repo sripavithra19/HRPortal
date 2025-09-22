@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head th:replace="fragments/header :: head('All Employees Leave Balance')"></head>
+<body>
+<div th:replace="fragments/header :: complete-header('All Employees Leave Balance')"></div>
+
+<main class="container mt-5">
+    <div class="card">
+        <div class="card-header d-flex justify-content-between">
+            <h5 class="mb-0">All Employees Leave Details</h5>
+            <button id="refreshAll" class="btn btn-outline-secondary btn-sm">Refresh</button>
+        </div>
+        <div class="card-body">
+            <div id="errorMessage" class="alert alert-danger d-none"></div>
+            <div id="allLeavesTable"></div>
+        </div>
+    </div>
+</main>
+
+<div th:replace="fragments/footer :: footer"></div>
+<script th:src="@{/js/tabulator.js}"></script>
+</body>
+</html>

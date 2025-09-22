@@ -1,6 +1,7 @@
 package com.ciberspring.portal.hr.controller;
 
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
+import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -8,8 +9,10 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.ciberspring.portal.hr.service.impl.AllEmployeesLeaveBalanceService;
 import com.ciberspring.portal.hr.service.impl.EmployeeClientService;
 import com.ciberspring.portal.hr.service.impl.LeavesClientService;
+import com.ciberspring.portal.hr.service.impl.MyLeavesClientService;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -19,12 +22,16 @@ public class ClientController {
 
 	private final EmployeeClientService employeeClientService;
 	private final LeavesClientService leavesClientService;
+	private final MyLeavesClientService myLeavesClientService;
+	private final AllEmployeesLeaveBalanceService allEmployeesLeaveBalanceService;
 	private final ObjectMapper objectMapper;
 
-	public ClientController(EmployeeClientService employeeClientService, LeavesClientService leavesClientService,
-			ObjectMapper objectMapper) {
+	public ClientController(EmployeeClientService employeeClientService, LeavesClientService leavesClientService,AllEmployeesLeaveBalanceService allEmployeesLeaveBalanceService,
+			MyLeavesClientService myLeavesClientService, ObjectMapper objectMapper) {
 		this.employeeClientService = employeeClientService;
 		this.leavesClientService = leavesClientService;
+		this.myLeavesClientService = myLeavesClientService;
+		this.allEmployeesLeaveBalanceService=allEmployeesLeaveBalanceService;
 		this.objectMapper = objectMapper;
 	}
 
@@ -33,9 +40,9 @@ public class ClientController {
 		return "employees";
 	}
 
-	@GetMapping("/leaves")
+	@GetMapping("/localholidaylist")
 	public String getAllLeaves() {
-		return "leaves";
+		return "localholidaylist";
 	}
 
 	@GetMapping("/employees/json")
@@ -44,7 +51,7 @@ public class ClientController {
 		return employeeClientService.getEmployees(authentication);
 	}
 
-	@GetMapping("/leaves/json")
+	@GetMapping("/localholidaylist/json")
 	@ResponseBody
 	public String getLeavesJson(OAuth2AuthenticationToken authentication) {
 		return leavesClientService.getLeaves(authentication);
@@ -64,22 +71,71 @@ public class ClientController {
 		return "employee-detail";
 	}
 
-	@GetMapping("/leaveDetails/{employeeId}")
-	@ResponseBody
-	public String getLeaveDetails(@PathVariable Long employeeId, OAuth2AuthenticationToken authentication) {
-		return leavesClientService.getLeaveDetails(employeeId, authentication);
+	@GetMapping("/myleaves")
+	public String getMyLeavesByEmail(OAuth2AuthenticationToken authentication, Model model) {
+		try {
+			// Get the logged-in user's email from Okta
+			OidcUser user = (OidcUser) authentication.getPrincipal();
+			String email = user.getEmail(); // This gets the email from Okta token
+			System.out.println(email);
+
+			if (email == null || email.isEmpty()) {
+				throw new RuntimeException("Email not found in user token");
+			}
+
+			// Call the service with the email
+			String leavesJson = myLeavesClientService.getLeaveBalancesByEmail(email, authentication);
+			JsonNode leavesNode = objectMapper.readTree(leavesJson);
+
+			model.addAttribute("leaves", leavesNode);
+			model.addAttribute("leavesJson", leavesJson);
+			model.addAttribute("email", email);
+
+		} catch (Exception e) {
+			e.printStackTrace();
+			model.addAttribute("error", "Failed to fetch your leave balances: " + e.getMessage());
+		}
+		return "my-leaves-detail";
 	}
 
-	// NEW ENDPOINT: For all leave details (optional)
-	@GetMapping("/allLeaveDetails")
+	@GetMapping("/myleaves/json")
 	@ResponseBody
-	public String getAllLeaveDetails(OAuth2AuthenticationToken authentication) {
-		return leavesClientService.getAllLeaveDetails(authentication);
+	public String getMyLeavesJsonByEmail(OAuth2AuthenticationToken authentication) {
+		try {
+			OidcUser user = (OidcUser) authentication.getPrincipal();
+			String email = user.getEmail();
+
+			System.out.println("=== OKTA EMAIL DEBUG ===");
+			System.out.println("Okta email: " + email);
+			System.out.println("All user attributes: " + user.getAttributes());
+
+			// Also check other possible email fields
+			String preferredUsername = user.getPreferredUsername();
+			System.out.println("Preferred username: " + preferredUsername);
+
+			if (email == null || email.isEmpty()) {
+				return "{\"error\": \"Email not found in user token\"}";
+			}
+
+			String result = myLeavesClientService.getLeaveBalancesByEmail(email, authentication);
+			System.out.println("Service response: " + result);
+			return result;
+
+		} catch (Exception e) {
+			e.printStackTrace();
+			return "{\"error\": \"Failed to fetch leave balances: " + e.getMessage() + "\"}";
+		}
+	}
+	@GetMapping("/AllLeaveBalance")
+	public String getAllEmployeesLeaves() {
+		return "allEmployeesLeave";
+	}
+	
+	@GetMapping("/AllLeaveBalance/json")
+	@ResponseBody
+	public String getAllEmployeesLeavesJson(OAuth2AuthenticationToken authentication) {
+	    return allEmployeesLeaveBalanceService.getEmployeesLeaveBalance(authentication);
 	}
 
-	// NEW ENDPOINT: Page for leaves availed
-	@GetMapping("/leaves-availed")
-	public String getLeavesAvailedPage() {
-		return "leaves-availed"; 
-	}
+
 }

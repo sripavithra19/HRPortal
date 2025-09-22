@@ -37,9 +37,8 @@ public class SecurityConfig {
 	@Bean
 	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 		http.authorizeHttpRequests(auth -> auth.anyRequest().authenticated())
-				.oauth2Login(oauth2 -> oauth2.defaultSuccessUrl("/index", true) // 👈 Redirect to /index always after
-																				// login
-				).logout(logout -> logout.logoutSuccessHandler(oidcLogoutSuccessHandler()) // Custom logout logic
+				.oauth2Login(oauth2 -> oauth2.defaultSuccessUrl("/home", true) 
+				).logout(logout -> logout.logoutSuccessHandler(oidcLogoutSuccessHandler()) 
 				);
  
 		return http.build();
