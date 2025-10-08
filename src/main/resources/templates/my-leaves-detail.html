@@ -17,6 +17,134 @@
 </main>
 
 <div th:replace="fragments/footer :: footer"></div>
-<script th:src="@{/js/tabulator.js}"></script>
+
+<!-- Load Tabulator from CDN -->
+<script src="https://unpkg.com/tabulator-tables@5.5.2/dist/js/tabulator.min.js"></script>
+
+<!-- Inline JavaScript that Thymeleaf can process -->
+<script th:inline="javascript">
+    /*<![CDATA[*/
+    document.addEventListener('DOMContentLoaded', function() {
+        console.log('Initializing My Leaves table');
+        try {
+            var myLeavesTable = new Tabulator("#myLeavesTable", {
+                ajaxURL: '/client/myleaves/json',
+                layout: "fitColumns",
+                ajaxResponse: function(url, params, response) {
+                    console.log('My Leaves API response:', response);
+
+                    // Handle string response (parse JSON if needed)
+                    if (typeof response === 'string') {
+                        try {
+                            response = JSON.parse(response);
+                        } catch (e) {
+                            console.error('Failed to parse my leaves response:', e);
+                            return [];
+                        }
+                    }
+
+                    // Handle error responses
+                    if (response && response.error) {
+                        showError('myLeavesTable', 'Error: ' + response.error);
+                        return [];
+                    }
+
+                    // Handle single object response by wrapping it in array
+                    if (response && typeof response === 'object' && !Array.isArray(response)) {
+                        return [response];
+                    }
+
+                    // Handle array response
+                    if (Array.isArray(response)) {
+                        return response;
+                    }
+
+                    console.warn('Unexpected my leaves response format:', response);
+                    return [];
+                },
+                columns: [
+                    { title: "Employee ID", field: "employeeId", width: 120 },
+                    { title: "Employee Name", field: "employeeName", width: 160 },
+                    { title: "Total General Leaves", field: "totalGeneralLeaves" },
+                    { title: "General Availed", field: "generalLeavesAvailed" },
+                    {
+                        title: "General Balance",
+                        formatter: function(cell) {
+                            const data = cell.getRow().getData();
+                            return (data.totalGeneralLeaves || 0) - (data.generalLeavesAvailed || 0);
+                        }
+                    },
+                    { title: "Total Privilege Leaves", field: "totalPrivilegeLeaves" },
+                    { title: "Privilege Availed", field: "privilegeLeavesAvailed" },
+                    {
+                        title: "Privilege Balance",
+                        formatter: function(cell) {
+                            const data = cell.getRow().getData();
+                            return (data.totalPrivilegeLeaves || 0) - (data.privilegeLeavesAvailed || 0);
+                        }
+                    },
+                    { title: "Total Restricted Holidays", field: "totalRestrictedHolidays" },
+                    { title: "Restricted Availed", field: "restrictedHolidaysAvailed" },
+                    {
+                        title: "Restricted Balance",
+                        formatter: function(cell) {
+                            const data = cell.getRow().getData();
+                            return (data.totalRestrictedHolidays || 0) - (data.restrictedHolidaysAvailed || 0);
+                        }
+                    }
+                ]
+            });
+
+            var refreshBtn = document.getElementById('refreshMy');
+            if (refreshBtn) {
+                refreshBtn.addEventListener('click', function() {
+                    myLeavesTable.replaceData();
+                });
+            }
+
+            myLeavesTable.on("dataLoaded", function(data) {
+                console.log('My Leaves data loaded:', data);
+                if (data && data.length === 0) {
+                    showError('myLeavesTable', 'No leave data found for your account.');
+                }
+            });
+
+            myLeavesTable.on("ajaxError", function(error, response) {
+                console.error('AJAX error loading my leaves:', error, response);
+                if (response && response.status === 403) {
+                    showAccessDeniedMessage("Access denied. You do not have permission to view leave data.", 'myLeavesTable');
+                } else {
+                    showError('myLeavesTable', 'Error loading your leave data. Please try again.');
+                }
+            });
+
+        } catch (error) {
+            console.error('Error initializing My Leaves Tabulator:', error);
+            showError('myLeavesTable', 'Error loading your leave data: ' + error.message);
+        }
+    });
+
+    function showError(elementId, message) {
+        var element = document.getElementById(elementId);
+        if (element) {
+            element.innerHTML = '<div class="alert alert-danger">' + message + '</div>';
+        }
+    }
+
+    function showAccessDeniedMessage(message, elementId) {
+        var errorHtml = '<div class="alert alert-warning alert-dismissible fade show" role="alert">' +
+            '<h4 class="alert-heading">Access Denied</h4>' +
+            '<p>' + message + '</p>' +
+            '<hr>' +
+            '<p class="mb-0">This section is restricted to authorized users only.</p>' +
+            '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>' +
+            '</div>';
+        var element = document.getElementById(elementId);
+        if (element) {
+            element.innerHTML = errorHtml;
+        }
+    }
+    /*]]>*/
+</script>
 </body>
 </html>
