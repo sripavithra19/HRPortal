@@ -36,16 +36,18 @@ public class EmployeeClientService {
             return response.getBody();
             
         } catch (HttpClientErrorException.Forbidden e) {
-            // Handle 403 Forbidden specifically
+            // Handle 403 Forbidden - user doesn't have required groups/scopes
             return """
             {
                 "error": "access_denied",
-                "message": "You are not allowed to access employee data. This is only for Management HR team access.",
+                "message": "You are not allowed to access employee data. This requires HR_EMPLOYEES_ACCESS group or employees.read scope.",
                 "contact": "Please contact HR administrator if you need access."
             }
             """;
         } catch (Exception e) {
-            return "[]";
+            System.out.println("=== DEBUG: Exception occurred ===");
+            e.printStackTrace();
+            return "{\"error\": \"Failed to fetch data: " + e.getMessage() + "\"}";
         }
     }
 
