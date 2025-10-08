@@ -51,39 +51,55 @@
                 <!-- Brand -->
                 <a class="navbar-brand" th:href="@{/home}">Ciberspring HR Portal</a>
 
+            
+
                 <!-- Right-aligned items -->
-                <div class="navbar-nav ms-auto d-flex align-items-center">
+                <ul class="navbar-nav ms-auto d-flex align-items-center flex-row">
                     <!-- HR Access Dropdown -->
-                    <li class="nav-item dropdown me-3">
-                        <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="hrDropdown" role="button"
-                            data-bs-toggle="dropdown" aria-expanded="false">
-                            <i class="bi bi-people-fill nav-icon"></i> HR Access
+                   <li class="nav-item dropdown me-3" th:if="${isHRUser}">
+                        <a class="nav-link dropdown-toggle d-flex align-items-center"
+                           href="#" id="hrDropdown" role="button" data-bs-toggle="dropdown"
+                           aria-expanded="false">
+                            <i class="bi bi-people-fill nav-icon"></i>
+                            HR Access
                         </a>
-                        <ul class="dropdown-menu dropdown-menu-end shadow" aria-labelledby="hrDropdown">
-                            <li><a class="dropdown-item" th:href="@{/client/employees}"><i class="bi bi-list-ul"></i> View Employees</a></li>
-                            <li><a class="dropdown-item" th:href="@{/client/AllLeaveBalance}"><i class="bi bi-calendar-check"></i> All Employees Leaves</a></li>
+                        <ul class="dropdown-menu dropdown-menu-end shadow"
+                            aria-labelledby="hrDropdown">
+                            <li><a class="dropdown-item" th:href="@{/client/employees}"><i
+                                    class="bi bi-list-ul"></i> View Employees</a></li>
+                            <li><a class="dropdown-item"
+                                   th:href="@{/client/AllLeaveBalance}"><i
+                                    class="bi bi-calendar-check"></i> All Employees Leaves</a></li>
                         </ul>
                     </li>
 
-                    <!-- Self Access Dropdown -->
+                    <!-- Self Access Dropdown - Visible to all authenticated users -->
                     <li class="nav-item dropdown me-3">
-                        <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="selfDropdown" role="button"
-                            data-bs-toggle="dropdown" aria-expanded="false">
-                            <i class="bi bi-person-check-fill nav-icon"></i> Self Access
+                        <a class="nav-link dropdown-toggle d-flex align-items-center"
+                           href="#" id="selfDropdown" role="button" data-bs-toggle="dropdown"
+                           aria-expanded="false">
+                            <i class="bi bi-person-check-fill nav-icon"></i>
+                            Self Access
                         </a>
-                        <ul class="dropdown-menu dropdown-menu-end shadow" aria-labelledby="selfDropdown">
-                            <li><a class="dropdown-item" th:href="@{/client/localholidaylist}"><i class="bi bi-calendar-event"></i> Local Holidays List</a></li>
-                            <li><a class="dropdown-item" th:href="@{/client/myleaves}"><i class="bi bi-clock-history"></i> My Leaves</a></li>
+                        <ul class="dropdown-menu dropdown-menu-end shadow"
+                            aria-labelledby="selfDropdown">
+                            <li><a class="dropdown-item"
+                                   th:href="@{/client/localholidaylist}"><i
+                                    class="bi bi-calendar-event"></i> Local Holidays List</a></li>
+                            <li><a class="dropdown-item" th:href="@{/client/myleaves}"><i
+                                    class="bi bi-clock-history"></i> My Leaves</a></li>
                         </ul>
                     </li>
 
                     <!-- Profile Dropdown -->
                     <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="profileDropdown" role="button"
-                            data-bs-toggle="dropdown" aria-expanded="false">
+                        <a class="nav-link dropdown-toggle d-flex align-items-center"
+                           href="#" id="profileDropdown" role="button"
+                           data-bs-toggle="dropdown" aria-expanded="false">
                             <i class="bi bi-person-circle profile-icon"></i>
                         </a>
-                        <ul class="dropdown-menu dropdown-menu-end shadow" aria-labelledby="profileDropdown" style="min-width: 300px;">
+                        <ul class="dropdown-menu dropdown-menu-end shadow"
+                            aria-labelledby="profileDropdown" style="min-width: 300px;">
                             <!-- User Info Header -->
                             <li class="dropdown-header text-center">
                                 <strong th:text="${user.fullName}">User Name</strong><br>
@@ -91,10 +107,13 @@
                             </li>
                             <li><hr class="dropdown-divider"></li>
 
+                        
+
                             <!-- Extra Details -->
                             <li class="px-3">
                                 <p class="mb-1">
-                                    <strong>Username:</strong> <span th:text="${user.preferredUsername}">johndoe</span>
+                                    <strong>Username:</strong> <span
+                                        th:text="${user.preferredUsername}">johndoe</span>
                                 </p>
                                 <p class="mb-1">
                                     <strong>Email Verified:</strong>
@@ -108,13 +127,16 @@
                             <!-- Actions -->
                             <li>
                                 <form th:action="@{/logout}" method="post" class="d-inline">
-                                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
-                                    <button type="submit" class="dropdown-item"><i class="bi bi-box-arrow-right"></i> Logout</button>
+                                    <input type="hidden" th:name="${_csrf.parameterName}"
+                                           th:value="${_csrf.token}" />
+                                    <button type="submit" class="dropdown-item">
+                                        <i class="bi bi-box-arrow-right"></i> Logout
+                                    </button>
                                 </form>
                             </li>
                         </ul>
                     </li>
-                </div>
+                </ul>
             </div>
         </nav>
     </header>
