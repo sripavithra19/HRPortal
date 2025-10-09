@@ -26,12 +26,13 @@ public class ClientController {
 	private final AllEmployeesLeaveBalanceService allEmployeesLeaveBalanceService;
 	private final ObjectMapper objectMapper;
 
-	public ClientController(EmployeeClientService employeeClientService, LeavesClientService leavesClientService,AllEmployeesLeaveBalanceService allEmployeesLeaveBalanceService,
+	public ClientController(EmployeeClientService employeeClientService, LeavesClientService leavesClientService,
+			AllEmployeesLeaveBalanceService allEmployeesLeaveBalanceService,
 			MyLeavesClientService myLeavesClientService, ObjectMapper objectMapper) {
 		this.employeeClientService = employeeClientService;
 		this.leavesClientService = leavesClientService;
 		this.myLeavesClientService = myLeavesClientService;
-		this.allEmployeesLeaveBalanceService=allEmployeesLeaveBalanceService;
+		this.allEmployeesLeaveBalanceService = allEmployeesLeaveBalanceService;
 		this.objectMapper = objectMapper;
 	}
 
@@ -126,16 +127,16 @@ public class ClientController {
 			return "{\"error\": \"Failed to fetch leave balances: " + e.getMessage() + "\"}";
 		}
 	}
+
 	@GetMapping("/AllLeaveBalance")
 	public String getAllEmployeesLeaves() {
 		return "allEmployeesLeave";
 	}
-	
+
 	@GetMapping("/AllLeaveBalance/json")
 	@ResponseBody
 	public String getAllEmployeesLeavesJson(OAuth2AuthenticationToken authentication) {
-	    return allEmployeesLeaveBalanceService.getEmployeesLeaveBalance(authentication);
+		return allEmployeesLeaveBalanceService.getEmployeesLeaveBalance(authentication);
 	}
-
 
 }
