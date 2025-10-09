@@ -7,9 +7,6 @@ import org.springframework.security.oauth2.client.authentication.OAuth2Authentic
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ModelAttribute;
-
-import com.ciberspring.portal.hr.service.impl.OktaGroupService;
-
 import java.util.Collections;
 import java.util.List;
 
