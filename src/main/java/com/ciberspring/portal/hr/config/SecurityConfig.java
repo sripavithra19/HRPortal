@@ -9,7 +9,6 @@ import org.springframework.security.oauth2.client.OAuth2AuthorizedClientProvider
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClientProviderBuilder;
 import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserRequest;
 import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserService;
-import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserService;
 import org.springframework.security.oauth2.client.web.DefaultOAuth2AuthorizedClientManager;
 import org.springframework.security.oauth2.client.web.OAuth2AuthorizedClientRepository;
@@ -36,9 +35,17 @@ public class SecurityConfig {
 
 	@Bean
 	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-		http.authorizeHttpRequests(auth -> auth.anyRequest().authenticated())
-				.oauth2Login(oauth2 -> oauth2.defaultSuccessUrl("/home", true))
-				.logout(logout -> logout.logoutSuccessHandler(oidcLogoutSuccessHandler()));
+		http
+			.csrf(csrf -> csrf.disable()) 
+			.authorizeHttpRequests(auth -> auth
+				// Allow static resources
+				.requestMatchers("/css/**", "/js/**", "/images/**").permitAll()
+				// Allow the home page
+				.requestMatchers("/", "/home").permitAll()
+				// All other requests require authentication
+				.anyRequest().authenticated())
+			.oauth2Login(oauth2 -> oauth2.defaultSuccessUrl("/home", true))
+			.logout(logout -> logout.logoutSuccessHandler(oidcLogoutSuccessHandler()));
 
 		return http.build();
 	}

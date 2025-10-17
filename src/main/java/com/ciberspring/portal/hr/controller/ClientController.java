@@ -1,12 +1,17 @@
 package com.ciberspring.portal.hr.controller;
 
+import java.util.Map;
+
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.ciberspring.portal.hr.service.impl.AllEmployeesLeaveBalanceService;
@@ -26,12 +31,13 @@ public class ClientController {
 	private final AllEmployeesLeaveBalanceService allEmployeesLeaveBalanceService;
 	private final ObjectMapper objectMapper;
 
-	public ClientController(EmployeeClientService employeeClientService, LeavesClientService leavesClientService,AllEmployeesLeaveBalanceService allEmployeesLeaveBalanceService,
+	public ClientController(EmployeeClientService employeeClientService, LeavesClientService leavesClientService,
+			AllEmployeesLeaveBalanceService allEmployeesLeaveBalanceService,
 			MyLeavesClientService myLeavesClientService, ObjectMapper objectMapper) {
 		this.employeeClientService = employeeClientService;
 		this.leavesClientService = leavesClientService;
 		this.myLeavesClientService = myLeavesClientService;
-		this.allEmployeesLeaveBalanceService=allEmployeesLeaveBalanceService;
+		this.allEmployeesLeaveBalanceService = allEmployeesLeaveBalanceService;
 		this.objectMapper = objectMapper;
 	}
 
@@ -43,6 +49,11 @@ public class ClientController {
 	@GetMapping("/localholidaylist")
 	public String getAllLeaves() {
 		return "localholidaylist";
+	}
+
+	@GetMapping("/add-employee")
+	public String showAddEmployeeForm() {
+		return "add-employee";
 	}
 
 	@GetMapping("/employees/json")
@@ -126,16 +137,67 @@ public class ClientController {
 			return "{\"error\": \"Failed to fetch leave balances: " + e.getMessage() + "\"}";
 		}
 	}
+
 	@GetMapping("/AllLeaveBalance")
 	public String getAllEmployeesLeaves() {
 		return "allEmployeesLeave";
 	}
-	
+
 	@GetMapping("/AllLeaveBalance/json")
 	@ResponseBody
 	public String getAllEmployeesLeavesJson(OAuth2AuthenticationToken authentication) {
-	    return allEmployeesLeaveBalanceService.getEmployeesLeaveBalance(authentication);
+		return allEmployeesLeaveBalanceService.getEmployeesLeaveBalance(authentication);
 	}
 
+	/**
+	 * Handle Google Places API address predictions
+	 */
+	@GetMapping("/address/predictions")
+	@ResponseBody
+	public String getAddressPredictions(@RequestParam String input, OAuth2AuthenticationToken authentication) {
+		try {
+			// You can add authentication checks here if needed
+			return employeeClientService.getAddressPredictions(input, authentication);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return "{\"error\": \"Failed to fetch address predictions: " + e.getMessage() + "\"}";
+		}
+	}
+
+	/**
+	 * Handle Google Places API address details
+	 */
+	@GetMapping("/address/details")
+	@ResponseBody
+	public String getAddressDetails(@RequestParam String placeId, OAuth2AuthenticationToken authentication) {
+		try {
+			return employeeClientService.getAddressDetails(placeId, authentication);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return "{\"error\": \"Failed to fetch address details: " + e.getMessage() + "\"}";
+		}
+	}
+
+	@PostMapping("/employees/create")
+	@ResponseBody
+	public String createEmployee(@RequestBody Map<String, String> employeeData,
+			OAuth2AuthenticationToken authentication) {
+		try {
+			System.out.println("=== CREATE EMPLOYEE DEBUG ===");
+			System.out.println("Employee Data: " + employeeData);
+			System.out.println("Authentication: " + (authentication != null ? "Present" : "Null"));
+			
+			if (authentication != null) {
+				System.out.println("User: " + authentication.getName());
+				System.out.println("Authorities: " + authentication.getAuthorities());
+			}
+			System.out.println("=== END DEBUG ===");
+			
+			return employeeClientService.createEmployee(employeeData, authentication);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return "{\"error\": \"Failed to create employee: " + e.getMessage() + "\"}";
+		}
+	}
 
 }
