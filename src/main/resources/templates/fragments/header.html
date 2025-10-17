@@ -51,8 +51,6 @@
                 <!-- Brand -->
                 <a class="navbar-brand" th:href="@{/home}">Ciberspring HR Portal</a>
 
-            
-
                 <!-- Right-aligned items -->
                 <ul class="navbar-nav ms-auto d-flex align-items-center flex-row">
                     <!-- HR Access Dropdown -->
@@ -65,11 +63,16 @@
                         </a>
                         <ul class="dropdown-menu dropdown-menu-end shadow"
                             aria-labelledby="hrDropdown">
-                            <li><a class="dropdown-item" th:href="@{/client/employees}"><i
-                                    class="bi bi-list-ul"></i> View Employees</a></li>
+                            <li><a class="dropdown-item" th:href="@{/client/add-employee}">
+                                <i class="bi bi-person-plus"></i> Add New Employee
+                            </a></li>
+                            <li><a class="dropdown-item" th:href="@{/client/employees}">
+                                <i class="bi bi-list-ul"></i> View Employees
+                            </a></li>
                             <li><a class="dropdown-item"
-                                   th:href="@{/client/AllLeaveBalance}"><i
-                                    class="bi bi-calendar-check"></i> All Employees Leaves</a></li>
+                                   th:href="@{/client/AllLeaveBalance}">
+                                <i class="bi bi-calendar-check"></i> All Employees Leaves
+                            </a></li>
                         </ul>
                     </li>
 
@@ -84,10 +87,12 @@
                         <ul class="dropdown-menu dropdown-menu-end shadow"
                             aria-labelledby="selfDropdown">
                             <li><a class="dropdown-item"
-                                   th:href="@{/client/localholidaylist}"><i
-                                    class="bi bi-calendar-event"></i> Local Holidays List</a></li>
-                            <li><a class="dropdown-item" th:href="@{/client/myleaves}"><i
-                                    class="bi bi-clock-history"></i> My Leaves</a></li>
+                                   th:href="@{/client/localholidaylist}">
+                                <i class="bi bi-calendar-event"></i> Local Holidays List
+                            </a></li>
+                            <li><a class="dropdown-item" th:href="@{/client/myleaves}">
+                                <i class="bi bi-clock-history"></i> My Leaves
+                            </a></li>
                         </ul>
                     </li>
 
@@ -107,8 +112,6 @@
                             </li>
                             <li><hr class="dropdown-divider"></li>
 
-                        
-
                             <!-- Extra Details -->
                             <li class="px-3">
                                 <p class="mb-1">
@@ -127,8 +130,7 @@
                             <!-- Actions -->
                             <li>
                                 <form th:action="@{/logout}" method="post" class="d-inline">
-                                    <input type="hidden" th:name="${_csrf.parameterName}"
-                                           th:value="${_csrf.token}" />
+                                    <!-- CSRF TOKEN REMOVED - CSRF IS DISABLED -->
                                     <button type="submit" class="dropdown-item">
                                         <i class="bi bi-box-arrow-right"></i> Logout
                                     </button>

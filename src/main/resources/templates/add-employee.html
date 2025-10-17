@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments/header :: head('Add New Employee')">
+</head>
+<body>
+	<div
+		th:replace="fragments/header :: complete-header('Add New Employee')"></div>
+
+	<div class="container mt-4">
+		<div class="row justify-content-center">
+			<div class="col-md-10">
+				<div class="card">
+					<div class="card-header bg-primary text-white">
+						<h4 class="mb-0">
+							<i class="bi bi-person-plus"></i> Add New Employee
+						</h4>
+					</div>
+					<div class="card-body">
+						<form id="employeeForm">
+							<div class="row">
+								<div class="col-md-6">
+									<div class="mb-3">
+										<label for="firstName" class="form-label">First Name *</label>
+										<input type="text" class="form-control" id="firstName"
+											name="firstName" required>
+									</div>
+								</div>
+								<div class="col-md-6">
+									<div class="mb-3">
+										<label for="lastName" class="form-label">Last Name *</label> <input
+											type="text" class="form-control" id="lastName"
+											name="lastName" required>
+									</div>
+								</div>
+							</div>
+
+							<div class="row">
+								<div class="col-md-6">
+									<div class="mb-3">
+										<label for="email" class="form-label">Email Address *</label>
+										<input type="email" class="form-control" id="email"
+											name="email" required>
+										<div class="form-text">This will be used for login and
+											activation email</div>
+									</div>
+								</div>
+								<!--   <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="dob" class="form-label">Date of Birth</label>
+                                        <input type="date" class="form-control" id="dob" name="dob">
+                                    </div>
+                                </div> -->
+                            </div> 
+
+								<!-- Google Places Address Fields -->
+								<div class="address-section">
+									<h5 class="mb-3">
+										<i class="bi bi-geo-alt"></i> Address Information
+									</h5>
+
+									<div class="mb-3">
+										<label for="homeAddress" class="form-label">Home
+											Address</label> <input type="text"
+											class="form-control address-autocomplete" id="homeAddress"
+											name="homeAddress" placeholder="Start typing home address...">
+										<div class="form-text">We'll auto-complete using Google
+											Places</div>
+									</div>
+
+									<div class="mb-3">
+										<label for="workAddress" class="form-label">Work
+											Address</label> <input type="text"
+											class="form-control address-autocomplete" id="workAddress"
+											name="workAddress" placeholder="Start typing work address...">
+									</div>
+
+									<div class="mb-3">
+										<label for="permanentAddress" class="form-label">Permanent
+											Address</label> <input type="text"
+											class="form-control address-autocomplete"
+											id="permanentAddress" name="permanentAddress"
+											placeholder="Start typing permanent address...">
+									</div>
+								</div>
+
+								<div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
+									<button type="button" class="btn btn-secondary me-md-2"
+										onclick="clearForm()">
+										<i class="bi bi-x-circle"></i> Clear
+									</button>
+									<button type="submit" class="btn btn-primary" id="submitBtn">
+										<i class="bi bi-person-check"></i> Create Employee
+									</button>
+								</div>
+						</form>
+					</div>
+				</div>
+
+				<!-- Results Section -->
+				<div id="resultSection" class="mt-4" style="display: none;">
+					<div class="alert alert-success">
+						<h5>
+							<i class="bi bi-check-circle"></i> Employee Created Successfully!
+						</h5>
+						<div id="resultDetails"></div>
+					</div>
+				</div>
+
+				<!-- Error Section -->
+				<div id="errorSection" class="mt-4" style="display: none;">
+					<div class="alert alert-danger">
+						<h5>
+							<i class="bi bi-exclamation-triangle"></i> Error
+						</h5>
+						<div id="errorDetails"></div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div th:replace="fragments/footer :: footer"></div>
+
+	<script>
+        // Initialize all address autocomplete fields
+        document.querySelectorAll('.address-autocomplete').forEach(input => {
+            initializeAutocomplete(input);
+        });
+
+        function initializeAutocomplete(input) {
+            let debounceTimer;
+            
+            input.addEventListener('input', function(e) {
+                clearTimeout(debounceTimer);
+                const query = e.target.value;
+                
+                if (query.length > 2) {
+                    debounceTimer = setTimeout(() => {
+                        fetchAddressPredictions(query, input);
+                    }, 300);
+                } else {
+                    hidePredictions(input);
+                }
+            });
+
+            // Create dropdown for predictions
+            const dropdown = document.createElement('div');
+            dropdown.className = 'address-predictions dropdown-menu';
+            input.parentNode.appendChild(dropdown);
+
+            // Hide dropdown when clicking outside
+            document.addEventListener('click', function(e) {
+                if (!input.contains(e.target) && !dropdown.contains(e.target)) {
+                    hidePredictions(input);
+                }
+            });
+        }
+
+        function fetchAddressPredictions(query, inputField) {
+            // Show loading indicator
+            const dropdown = inputField.parentNode.querySelector('.address-predictions');
+            dropdown.innerHTML = '<div class="dropdown-item text-muted">Searching...</div>';
+            dropdown.style.display = 'block';
+
+            fetch(`/client/address/predictions?input=${encodeURIComponent(query)}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.error) {
+                        // Show error message
+                        dropdown.innerHTML = `<div class="dropdown-item text-danger">
+                            <i class="bi bi-exclamation-triangle"></i> ${data.error}
+                        </div>`;
+                        console.error('Google Places API error:', data.error);
+                    } else if (data.predictions && data.predictions.length > 0) {
+                        displayPredictions(data.predictions, inputField);
+                    } else {
+                        dropdown.innerHTML = '<div class="dropdown-item text-muted">No addresses found</div>';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching address predictions:', error);
+                    dropdown.innerHTML = `<div class="dropdown-item text-danger">
+                        <i class="bi bi-exclamation-triangle"></i> Network error. Please try again.
+                    </div>`;
+                });
+        }
+
+        function displayPredictions(predictions, inputField) {
+            const dropdown = inputField.parentNode.querySelector('.address-predictions');
+            dropdown.innerHTML = '';
+
+            if (predictions && predictions.length > 0) {
+                predictions.forEach(prediction => {
+                    const item = document.createElement('a');
+                    item.className = 'dropdown-item';
+                    item.href = '#';
+                    item.textContent = prediction.description;
+                    item.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        inputField.value = prediction.description;
+                        hidePredictions(inputField);
+                        
+                        // Get full place details
+                        fetchPlaceDetails(prediction.place_id, inputField);
+                    });
+                    dropdown.appendChild(item);
+                });
+                dropdown.style.display = 'block';
+            } else {
+                hidePredictions(inputField);
+            }
+        }
+
+        function fetchPlaceDetails(placeId, inputField) {
+            fetch(`/client/address/details?placeId=${placeId}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.result && data.result.formatted_address) {
+                        inputField.value = data.result.formatted_address;
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching place details:', error);
+                });
+        }
+
+        function hidePredictions(inputField) {
+            const dropdown = inputField.parentNode.querySelector('.address-predictions');
+            if (dropdown) {
+                dropdown.style.display = 'none';
+            }
+        }
+
+        // Form submission
+        document.getElementById('employeeForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            createEmployee();
+        });
+
+        function createEmployee() {
+            const submitBtn = document.getElementById('submitBtn');
+            const originalText = submitBtn.innerHTML;
+            
+            // Show loading state
+            submitBtn.innerHTML = '<i class="bi bi-hourglass-split"></i> Creating Employee...';
+            submitBtn.disabled = true;
+
+            // Hide previous results/errors
+            document.getElementById('resultSection').style.display = 'none';
+            document.getElementById('errorSection').style.display = 'none';
+
+            const formData = {
+                firstName: document.getElementById('firstName')?.value || '',
+                lastName: document.getElementById('lastName')?.value || '',
+                email: document.getElementById('email')?.value || '',
+              //  dob: document.getElementById('dob')?.value || '',
+                homeAddress: document.getElementById('homeAddress')?.value || '',
+                workAddress: document.getElementById('workAddress')?.value || '',
+                permanentAddress: document.getElementById('permanentAddress')?.value || ''
+            };
+
+            // Simple headers without CSRF
+            const headers = {
+                'Content-Type': 'application/json'
+            };
+
+            fetch('/client/employees/create', {
+                method: 'POST',
+                headers: headers,
+                body: JSON.stringify(formData)
+            })
+            .then(response => {
+                console.log('Response status:', response.status);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log('Response data:', data);
+                if (data.employeeId || data.message) {
+                    showSuccessResult(data);
+                    document.getElementById('employeeForm').reset();
+                } else {
+                    showError(data.error || 'Unknown error occurred');
+                }
+            })
+            .catch(error => {
+                console.error('Error creating employee:', error);
+                showError('Failed to create employee: ' + error.message);
+            })
+            .finally(() => {
+                // Reset button state
+                submitBtn.innerHTML = originalText;
+                submitBtn.disabled = false;
+            });
+        }
+        
+        function showSuccessResult(data) {
+            const resultSection = document.getElementById('resultSection');
+            const resultDetails = document.getElementById('resultDetails');
+            
+            resultDetails.innerHTML = `
+                <p><strong>Employee ID:</strong> ${data.employeeId}</p>
+                <p><strong>Email:</strong> ${data.email}</p>
+                <p><strong>Status:</strong> Activation email sent to employee</p>
+                <p class="text-muted">The employee can now set up their password using the activation email.</p>
+            `;
+            
+            resultSection.style.display = 'block';
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function showError(message) {
+            const errorSection = document.getElementById('errorSection');
+            const errorDetails = document.getElementById('errorDetails');
+            
+            errorDetails.innerHTML = `<p>${message}</p>`;
+            errorSection.style.display = 'block';
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function clearForm() {
+            document.getElementById('employeeForm').reset();
+            document.getElementById('resultSection').style.display = 'none';
+            document.getElementById('errorSection').style.display = 'none';
+            
+            // Clear all predictions dropdowns
+            document.querySelectorAll('.address-predictions').forEach(dropdown => {
+                dropdown.style.display = 'none';
+            });
+        }
+    </script>
+
+	<style>
+.address-predictions {
+	position: absolute;
+	z-index: 1000;
+	width: calc(100% - 30px);
+	max-height: 200px;
+	overflow-y: auto;
+	display: none;
+}
+
+.address-section {
+	background-color: #f8f9fa;
+	padding: 20px;
+	border-radius: 8px;
+	border: 1px solid #e9ecef;
+}
+
+.form-text {
+	font-size: 0.875rem;
+	color: #6c757d;
+}
+</style>
+</body>
+</html>
