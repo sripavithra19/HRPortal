@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Redirecting to Personal Details</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f5f5f5;
+        }
+        .loading-container {
+            text-align: center;
+            padding: 2rem;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            max-width: 500px;
+        }
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #3498db;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 2s linear infinite;
+            margin: 0 auto 1rem;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="loading-container">
+        <div class="spinner"></div>
+        <h3>Redirecting to Personal Details...</h3>
+        <p>Please wait while we securely transfer you to the Employee Management System.</p>
+        <p id="status">Initializing redirect...</p>
+    </div>
+
+    <form id="redirectForm" method="POST" th:action="@{http://localhost:8083/personal-details}" style="display: none;">
+        <input type="hidden" name="token" th:value="${accessToken}" />
+        <input type="hidden" name="email" th:value="${userEmail}" />
+    </form>
+
+    <script th:inline="javascript">
+        /*<![CDATA[*/
+        const accessToken = /*[[${accessToken}]]*/ '';
+        const userEmail = /*[[${userEmail}]]*/ '';
+        
+        console.log('Starting secure redirect to Employee Management...');
+        console.log('User Email:', userEmail);
+        console.log('Token available:', accessToken ? 'Yes' : 'No');
+        
+        function attemptRedirect() {
+            if (accessToken && userEmail) {
+                document.getElementById('status').textContent = 'Setting up secure connection...';
+                
+                // Method 1: Try to submit form with token
+                setTimeout(() => {
+                    document.getElementById('status').textContent = 'Redirecting now...';
+                    document.getElementById('redirectForm').submit();
+                }, 1000);
+                
+            } else {
+                document.getElementById('status').textContent = 'Error: Missing authentication data';
+                setTimeout(() => {
+                    window.location.href = '/home?error=Authentication+failed+-+missing+token';
+                }, 2000);
+            }
+        }
+        
+        // Start the redirect process
+        setTimeout(attemptRedirect, 500);
+        /*]]>*/
+    </script>
+</body>
+</html>

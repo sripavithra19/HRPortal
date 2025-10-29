@@ -1,5 +1,7 @@
 package com.ciberspring.portal.hr.controller;
 
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
@@ -198,6 +200,61 @@ public class ClientController {
 			e.printStackTrace();
 			return "{\"error\": \"Failed to create employee: " + e.getMessage() + "\"}";
 		}
+	}
+	
+	@GetMapping("/personal-details")
+	public String redirectToPersonalDetails(OAuth2AuthenticationToken authentication) {
+	    try {
+	        // Get the logged-in user's email from Okta
+	        OidcUser user = (OidcUser) authentication.getPrincipal();
+	        String email = user.getEmail();
+	        
+	        if (email == null || email.isEmpty()) {
+	            throw new RuntimeException("Email not found in user token");
+	        }
+
+	        // Get access token
+	        String accessToken = employeeClientService.getUserAccessToken(authentication);
+	        
+	        System.out.println("=== PERSONAL DETAILS REDIRECT ===");
+	        System.out.println("User Email: " + email);
+	        System.out.println("Access Token available: " + (accessToken != null));
+	        System.out.println("=== END DEBUG ===");
+	        
+	        if (accessToken == null) {
+	            throw new RuntimeException("Access token not available");
+	        }
+
+	        // URL encode both email and token
+	        String encodedEmail = URLEncoder.encode(email, StandardCharsets.UTF_8);
+	        String encodedToken = URLEncoder.encode(accessToken, StandardCharsets.UTF_8);
+	        
+	        // Redirect with both email and token parameters
+	        return "redirect:http://localhost:8083/personal-details?email=" + encodedEmail + "&token=" + encodedToken;
+	        
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	        return "redirect:/home?error=Failed to access personal details: " + e.getMessage();
+	    }
+	}
+
+	@GetMapping("/personal-details-with-token")
+	public String personalDetailsWithToken(OAuth2AuthenticationToken authentication, Model model) {
+	    try {
+	        OidcUser user = (OidcUser) authentication.getPrincipal();
+	        String email = user.getEmail();
+	        String accessToken = employeeClientService.getUserAccessToken(authentication);
+	        
+	        model.addAttribute("accessToken", accessToken);
+	        model.addAttribute("userEmail", email);
+	        model.addAttribute("targetUrl", "http://localhost:8083/personal-details");
+	        
+	        return "token-redirect";
+	        
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	        return "redirect:/home?error=Failed to access personal details: " + e.getMessage();
+	    }
 	}
 
 }
