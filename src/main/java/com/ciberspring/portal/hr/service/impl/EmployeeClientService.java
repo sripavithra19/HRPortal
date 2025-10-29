@@ -162,7 +162,7 @@ public class EmployeeClientService {
 	    }
 	}
 
-	private String getUserAccessToken(OAuth2AuthenticationToken authentication) {
+	public String getUserAccessToken(OAuth2AuthenticationToken authentication) {
 		OAuth2AuthorizedClient client = authorizedClientService
 				.loadAuthorizedClient(authentication.getAuthorizedClientRegistrationId(), authentication.getName());
 		OAuth2AccessToken token = client.getAccessToken();
