@@ -1,11 +1,15 @@
 package com.ciberspring.portal.hr.model;
 
+
 public class EmployeeDTO {
 	private String id;
     private String login;
     private String firstName;
     private String lastName;
     private String email;
+    private String homeAddress;
+    private String workAddress;
+    private String permanentAddress;
 	public String getId() {
 		return id;
 	}
@@ -35,6 +39,24 @@ public class EmployeeDTO {
 	}
 	public void setEmail(String email) {
 		this.email = email;
+	}
+	public String getHomeAddress() {
+		return homeAddress;
+	}
+	public void setHomeAddress(String homeAddress) {
+		this.homeAddress = homeAddress;
+	}
+	public String getWorkAddress() {
+		return workAddress;
+	}
+	public void setWorkAddress(String workAddress) {
+		this.workAddress = workAddress;
+	}
+	public String getPermanentAddress() {
+		return permanentAddress;
+	}
+	public void setPermanentAddress(String permanentAddress) {
+		this.permanentAddress = permanentAddress;
 	}
     
 }
